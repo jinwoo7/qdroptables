@@ -69,17 +69,19 @@ def analyze_file(path):
 	if len(faces) >= 1:
     	print(faces[0]['faceAttributes']['emotion'])
 
+filename = 'C:\Users\jyom\Documents\github\best_image.jpg'
+
+print('Check env')
+env_check(env_vars)
 
 print('Check file for validity')
-check_file(path)
+check_file(filename)
 
 print('Upload to S3')
-upload_images(path)
+upload_images(filename)
 
 print('Delete Local File')
-remove_file(path)
+remove_file(filename)
 
-print('Run Analysis')
-
-
-print('Display Result')
+print('Run Analysis & Display Result')
+analyze_file(filename)
