@@ -10,7 +10,7 @@ def env_check(env_list):
 			sys.exit('Please set env variable:{}'.format(env))
 
 # Variable Declaration
-filename = 'C:/Users/jyom/Documents/github/best_image.jpg'
+file_path = sys.argv[-1]
 
 face_api_url = "https://westcentralus.api.cognitive.microsoft.com/face/v1.0/detect"
 
@@ -34,6 +34,15 @@ session = boto3.Session(aws_access_key_id=os.environ['AWS_SERVER_PUBLIC_KEY'],
 
 s3 = session.client('s3')
 
+# Function Definition
+def check_file(path):
+	# check that file exists & is jpg extension
+	if not isfile(path):
+		sys.exit('File {} does not exist'.format(path))
+	elif not path.endswith('.jpg'):
+		remove(path)
+		sys.exit('File {} is not a .jpg file.'.format(path))
+
 def upload_images(path):	
 	bucket_name = 'rating-imgs'
 
@@ -42,36 +51,29 @@ def upload_images(path):
 		data = open(path, 'rb')
 	except Exception as e:
 		data.close()
-		system.exit('Encountered error opening file: {}. Error: {}'.format(path, e))
+		sys.exit('Encountered error opening file: {}. Error: {}'.format(path, e))
 
 	# upload image to s3
 	try:
 		response = s3.put_object(Bucket=bucket_name, Key=path, Body=data)
 		if response['ResponseMetadata']['HTTPStatusCode'] != 200:
 			data.close()
-			system.exit('Encountered error uploading {} to bucket {}. Error: {}'.format(path, bucket_name, response))		
+			sys.exit('Encountered error uploading {} to bucket {}. Error: {}'.format(path, bucket_name, response))		
 		else:
 			data.close()
 			print('Successfully uploaded file {} to bucket {}.'.format(path, bucket_name))
 	except Exception as e:
 		data.close()
-		system.exit('Encountered error uploading {} to bucket {}. Error: {}'.format(path, bucket_name, e))		
+		sys.exit('Encountered error uploading {} to bucket {}. Error: {}'.format(path, bucket_name, e))		
 
 def remove_file(path):
 	remove(path)
 
-def check_file(path):
-	# check that file exists & is jpg extension
-	if not isfile(path):
-		system.exit('File {} does not exist'.format(path))
-	elif not path.endswith('.jpg'):
-		remove(path)
-		system.exit('File {} is not a .jpg file.'.format(path))
-
 def analyze_file(path):
 	response = requests.post(face_api_url, params=params, headers=headers, json=data)
-	faces = response.json()
+	return response.json()
 
+def print_result(faces):
 	if len(faces) >= 1:
 		print(faces[0]['faceAttributes']['emotion'])
 
@@ -80,13 +82,16 @@ print('Check env')
 env_check(env_vars)
 
 print('Check file for validity')
-check_file(filename)
+check_file(file_path)
 
 print('Upload to S3')
-upload_images(filename)
+upload_images(file_path)
 
 print('Delete Local File')
-remove_file(filename)
+remove_file(file_path)
 
-print('Run Analysis & Display Result')
-analyze_file(filename)
+print('Run Analysis')
+faces = analyze_file(file_path)
+
+print('Display Result')
+print_result(faces)
