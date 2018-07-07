@@ -79,7 +79,7 @@ def analyze_file(image_url):
 
 def print_result(faces):
 	for face in faces:
-		print(face['faceAttributes']['emotion']))
+		print(face['faceAttributes']['emotion'])
 
 print('Check env')
 env_check(env_vars)
