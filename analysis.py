@@ -3,14 +3,15 @@ from os.path import isfile
 from os import remove
 
 # Error Checking
-env_vars = ['QDROPTABLES-KEY', 'AWS_SERVER_PUBLIC_KEY', 'AWS_SERVER_SECRET_KEY']
+env_vars = ['APIKEY', 'PUBLICKEY', 'SECRETKEY']
 def env_check(env_list):
 	for env in env_list:
 		if env not in os.environ:
 			sys.exit('Please set env variable:{}'.format(env))
 
 # Variable Declaration
-file_path = sys.argv[-1]
+# file_path = sys.argv[-1]
+file_path = "C:\\Users\\jyom\\Documents\\github\\12153.jpg"
 
 face_api_url = "https://westcentralus.api.cognitive.microsoft.com/face/v1.0/detect"
 
@@ -18,7 +19,7 @@ image_url = 'https://how-old.net/Images/faces2/main007.jpg'
 
 headers = {
     'Content-Type': "application/json",
-    'Ocp-Apim-Subscription-Key': os.environ['QDROPTABLES-KEY']
+    'Ocp-Apim-Subscription-Key': os.environ['APIKEY']
 }
 
 params = {
@@ -27,10 +28,8 @@ params = {
     'returnFaceAttributes': 'emotion'
 }
 
-data = {'url': image_url}
-
-session = boto3.Session(aws_access_key_id=os.environ['AWS_SERVER_PUBLIC_KEY'],
-						aws_secret_access_key=os.environ['AWS_SERVER_SECRET_KEY'])
+session = boto3.Session(aws_access_key_id=os.environ['PUBLICKEY'],
+						aws_secret_access_key=os.environ['SECRETKEY'])
 
 s3 = session.client('s3')
 
@@ -64,18 +63,24 @@ def upload_images(path):
 			print('Successfully uploaded file {} to bucket {}.'.format(path, bucket_name))
 	except Exception as e:
 		data.close()
-		sys.exit('Encountered error uploading {} to bucket {}. Error: {}'.format(path, bucket_name, e))		
+		sys.exit('Encountered error uploading {} to bucket {}. Error: {}'.format(path, bucket_name, e))
+
+	return "https://s3.amazonaws.com/rating-imgs/" + path.split('/')[-1]
+
 
 def remove_file(path):
 	remove(path)
 
-def analyze_file(path):
+def analyze_file(image_url):
+	data = {'url': image_url}
 	response = requests.post(face_api_url, params=params, headers=headers, json=data)
 	return response.json()
 
 def print_result(faces):
 	if len(faces) >= 1:
 		print(faces[0]['faceAttributes']['emotion'])
+	else:
+		print("There was no results")
 
 
 print('Check env')
@@ -85,13 +90,13 @@ print('Check file for validity')
 check_file(file_path)
 
 print('Upload to S3')
-upload_images(file_path)
+fileUrl = upload_images(file_path)
 
 print('Delete Local File')
 remove_file(file_path)
 
 print('Run Analysis')
-faces = analyze_file(file_path)
+faces = analyze_file(fileUrl)
 
 print('Display Result')
 print_result(faces)
