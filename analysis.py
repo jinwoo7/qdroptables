@@ -12,8 +12,6 @@ def env_check(env_list):
 			sys.exit('Please set env variable:{}'.format(env))
 
 # Variable Declaration
-sound_program = "vlc"
-TIMEOUT = 5
 
 file_path = sys.argv[-1]
 #file_path = "C:\\Users\\jyom\\Documents\\github\\12153.jpg"
@@ -142,13 +140,16 @@ def play_sound(emotions):
 		topResults.append(emotion[0][0])
 
 	if "Scared    " in topResults:
-		sound = './qdroptalbes/slowDown.mp3'
+		sound = 'slowDown.mp3'
 	elif "Frustrated" in topResults:
-		sound = './qdroptalbes/frustration.mp3'
+		sound = 'frustration.mp3'
 	elif "Sad       " in topResults:
-		sound = './qdroptalbes/checkOnPassenger.mp3'
+		sound = 'checkOnPassenger.mp3'
 	else:
-		sound = './qdroptalbes/good.mp3'
+		sound = 'good.mp3'
+
+	sound_program = "vlc"
+	TIMEOUT = 5
 	subp = subprocess.Popen([sound_program, sound])
 
 	p = psutil.Process(subp.pid)
@@ -180,5 +181,5 @@ emotions = sort_results(faces)
 print('Display Result')
 print_result(emotions)
 
-print('Play Sound')
-play_sound(emotions)
+# print('Play Sound')
+# play_sound(emotions)
