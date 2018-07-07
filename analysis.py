@@ -77,9 +77,39 @@ def analyze_file(image_url):
 	response = requests.post(face_api_url, params=params, headers=headers, json=data)
 	return response.json()
 
-def print_result(faces):
+def sort_results(faces):
+	emotions = []
 	for face in faces:
-		print(face['faceAttributes']['emotion'])
+		person = []
+		# Good
+		person.append([
+			"Happy",
+			face['faceAttributes']['emotion']['happiness'] + face['faceAttributes']['emotion']['neutral'] + face['faceAttributes']['emotion']['contempt']
+		])
+		# Sad
+		person.append([
+			"Sad",
+			face['faceAttributes']['emotion']['sadness']
+		])
+		# Frustrated
+		person.append([
+			"Frustrated",
+			face['faceAttributes']['emotion']['anger'] + face['faceAttributes']['emotion']['disgust']
+		])
+		# Scared
+		person.append([
+			"Scared",
+			face['faceAttributes']['emotion']['fear'] + face['faceAttributes']['emotion']['surprise']
+		])
+		emotions.append(sorted(person, key=lambda tup: tup[1], reverse=True))
+	return emotions
+
+def print_result(emotions):
+	for emotion in emotions:
+		print("-------------------------------------")
+		for e in emotion:
+			print("{}:{}".format(e[0], e[1]))
+		
 
 print('Check env')
 env_check(env_vars)
@@ -96,5 +126,8 @@ remove_file(file_path)
 print('Run Analysis')
 faces = analyze_file(fileUrl)
 
+print('Sort Result')
+emotions = sort_results(faces)
+
 print('Display Result')
-print_result(faces)
+print_result(emotions)
