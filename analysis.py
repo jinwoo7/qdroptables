@@ -142,13 +142,13 @@ def play_sound(emotions):
 		topResults.append(emotion[0][0])
 
 	if "Scared    " in topResults:
-		sound = 'slowDown.mp3'
+		sound = './qdroptalbes/slowDown.mp3'
 	elif "Frustrated" in topResults:
-		sound = 'frustration.mp3'
+		sound = './qdroptalbes/frustration.mp3'
 	elif "Sad       " in topResults:
-		sound = 'checkOnPassenger.mp3'
+		sound = './qdroptalbes/checkOnPassenger.mp3'
 	else:
-		sound = 'good.mp3'
+		sound = './qdroptalbes/good.mp3'
 	subp = subprocess.Popen([sound_program, sound])
 
 	p = psutil.Process(subp.pid)
