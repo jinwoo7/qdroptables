@@ -1,4 +1,5 @@
 import boto3, logging, requests, os, sys
+from playsound import playsound
 from os.path import isfile
 from os import remove
 
@@ -83,12 +84,12 @@ def sort_results(faces):
 		person = []
 		# Good
 		person.append([
-			"Happy",
+			"Happy     ",
 			face['faceAttributes']['emotion']['happiness'] + face['faceAttributes']['emotion']['neutral'] + face['faceAttributes']['emotion']['contempt']
 		])
 		# Sad
 		person.append([
-			"Sad",
+			"Sad       ",
 			face['faceAttributes']['emotion']['sadness']
 		])
 		# Frustrated
@@ -98,18 +99,54 @@ def sort_results(faces):
 		])
 		# Scared
 		person.append([
-			"Scared",
+			"Scared    ",
 			face['faceAttributes']['emotion']['fear'] + face['faceAttributes']['emotion']['surprise']
 		])
 		emotions.append(sorted(person, key=lambda tup: tup[1], reverse=True))
+
+	# person = []
+	# person.append([
+	# 	"Sad       ",
+	# 	1.0
+	# ])
+	# person = []
+	# emotions.append(person)
+	# person.append([
+	# 	"Frustrated",
+	# 	1.0
+	# ])
+	# emotions.append(person)
+	# person = []
+	# person.append([
+	# 	"Scared    ",
+	# 	1.0
+	# ])
+	# emotions.append(person)
+
 	return emotions
 
 def print_result(emotions):
 	for emotion in emotions:
-		print("-------------------------------------")
+		print("-----------------------------------------------------------------")
 		for e in emotion:
-			print("{}:{}".format(e[0], e[1]))
-		
+			bar = "|" * int(e[1] * 100 / 2)
+			print("{} : {} {}%".format(e[0], bar, e[1] * 100))
+
+def play_sound(emotions):
+	topResults = []
+	for emotion in emotions:
+		topResults.append(emotion[0][0])
+	
+
+	if "Scared    " in topResults:
+		playsound('slowDown.mp3', block = True)
+	elif "Frustrated" in topResults:
+		playsound('frustration.mp3', block = True)
+	elif "Sad       " in topResults:
+		playsound('checkOnPassenger.mp3', block = True)
+	else:
+		playsound('good.mp3', block = True)
+
 
 print('Check env')
 env_check(env_vars)
@@ -131,3 +168,6 @@ emotions = sort_results(faces)
 
 print('Display Result')
 print_result(emotions)
+
+print('Play Sound')
+play_sound(emotions)
