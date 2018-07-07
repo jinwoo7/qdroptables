@@ -1,4 +1,4 @@
-import boto3, pprint, logging, requests, os, sys
+import boto3, logging, requests, os, sys
 from os.path import isfile
 from os import remove
 
