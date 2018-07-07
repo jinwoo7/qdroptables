@@ -39,18 +39,17 @@ def upload_images(path):
 	try:
 		data = open(path, 'rb')
 	except Exception as e:
-		logging.error('Encountered error opening file: {}. Error: {}'.format(path, e))
-		return
+		system.exit('Encountered error opening file: {}. Error: {}'.format(path, e))
 
 	# upload image to s3
 	try:
 		response = s3.put_object(Bucket=bucket_name, Key=path, Body=data)
 		if response['ResponseMetadata']['HTTPStatusCode'] != 200:
-			logging.error('Encountered error uploading {} to bucket {}. Error: {}'.format(path, bucket_name, response))		
+			system.exit('Encountered error uploading {} to bucket {}. Error: {}'.format(path, bucket_name, response))		
 		else:
-			logging.info('Successfully uploaded file {} to bucket {}.'.format(path, bucket_name))
+			print('Successfully uploaded file {} to bucket {}.'.format(path, bucket_name))
 	except Exception as e:
-		logging.error('Encountered error uploading {} to bucket {}. Error: {}'.format(path, bucket_name, e))		
+		system.exit('Encountered error uploading {} to bucket {}. Error: {}'.format(path, bucket_name, e))		
 
 def remove_file(path):
 	remove(path)
@@ -63,12 +62,24 @@ def check_file(path):
 		remove(path)
 		system.exit('File {} is not a .jpg file.'.format(path))
 
-print('Get Picture')
+def analyze_file(path):
+	response = requests.post(face_api_url, params=params, headers=headers, json=data)
+	faces = response.json()
+
+	if len(faces) >= 1:
+    	print(faces[0]['faceAttributes']['emotion'])
+
+
+print('Check file for validity')
+check_file(path)
 
 print('Upload to S3')
+upload_images(path)
 
 print('Delete Local File')
+remove_file(path)
 
 print('Run Analysis')
+
 
 print('Display Result')
