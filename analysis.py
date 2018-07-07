@@ -10,8 +10,8 @@ def env_check(env_list):
 			sys.exit('Please set env variable:{}'.format(env))
 
 # Variable Declaration
-# file_path = sys.argv[-1]
-file_path = "C:\\Users\\jyom\\Documents\\github\\12153.jpg"
+file_path = sys.argv[-1]
+#file_path = "C:\\Users\\jyom\\Documents\\github\\12153.jpg"
 
 face_api_url = "https://westcentralus.api.cognitive.microsoft.com/face/v1.0/detect"
 
