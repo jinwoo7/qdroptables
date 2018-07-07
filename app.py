@@ -10,6 +10,8 @@ def env_check(env_list):
 			sys.exit('Please set env variable:{}'.format(env))
 
 # Variable Declaration
+filename = 'C:/Users/jyom/Documents/github/best_image.jpg'
+
 face_api_url = "https://westcentralus.api.cognitive.microsoft.com/face/v1.0/detect"
 
 image_url = 'https://how-old.net/Images/faces2/main007.jpg'
@@ -39,16 +41,20 @@ def upload_images(path):
 	try:
 		data = open(path, 'rb')
 	except Exception as e:
+		data.close()
 		system.exit('Encountered error opening file: {}. Error: {}'.format(path, e))
 
 	# upload image to s3
 	try:
 		response = s3.put_object(Bucket=bucket_name, Key=path, Body=data)
 		if response['ResponseMetadata']['HTTPStatusCode'] != 200:
+			data.close()
 			system.exit('Encountered error uploading {} to bucket {}. Error: {}'.format(path, bucket_name, response))		
 		else:
+			data.close()
 			print('Successfully uploaded file {} to bucket {}.'.format(path, bucket_name))
 	except Exception as e:
+		data.close()
 		system.exit('Encountered error uploading {} to bucket {}. Error: {}'.format(path, bucket_name, e))		
 
 def remove_file(path):
@@ -67,9 +73,8 @@ def analyze_file(path):
 	faces = response.json()
 
 	if len(faces) >= 1:
-    	print(faces[0]['faceAttributes']['emotion'])
+		print(faces[0]['faceAttributes']['emotion'])
 
-filename = 'C:\Users\jyom\Documents\github\best_image.jpg'
 
 print('Check env')
 env_check(env_vars)
