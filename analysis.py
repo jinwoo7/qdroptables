@@ -44,6 +44,7 @@ def check_file(path):
 
 def upload_images(path):	
 	bucket_name = 'rating-imgs'
+	filename = path.split('/')[-1]
 
 	# check path & open file
 	try:
@@ -54,18 +55,18 @@ def upload_images(path):
 
 	# upload image to s3
 	try:
-		response = s3.put_object(Bucket=bucket_name, Key=path, Body=data)
+		response = s3.put_object(Bucket=bucket_name, Key=filename, Body=data)
 		if response['ResponseMetadata']['HTTPStatusCode'] != 200:
 			data.close()
-			sys.exit('Encountered error uploading {} to bucket {}. Error: {}'.format(path, bucket_name, response))		
+			sys.exit('Encountered error uploading {} to bucket {}. Error: {}'.format(filename, bucket_name, response))		
 		else:
 			data.close()
-			print('Successfully uploaded file {} to bucket {}.'.format(path, bucket_name))
+			print('Successfully uploaded file {} to bucket {}.'.format(filename, bucket_name))
 	except Exception as e:
 		data.close()
-		sys.exit('Encountered error uploading {} to bucket {}. Error: {}'.format(path, bucket_name, e))
+		sys.exit('Encountered error uploading {} to bucket {}. Error: {}'.format(filename, bucket_name, e))
 
-	return "https://s3.amazonaws.com/rating-imgs/" + path.split('/')[-1]
+	return "https://s3.amazonaws.com/rating-imgs/" + filename
 
 
 def remove_file(path):
