@@ -78,11 +78,8 @@ def analyze_file(image_url):
 	return response.json()
 
 def print_result(faces):
-	if len(faces) >= 1:
-		print(faces[0]['faceAttributes']['emotion'])
-	else:
-		print("There was no results")
-
+	for face in faces:
+		print(face['faceAttributes']['emotion']))
 
 print('Check env')
 env_check(env_vars)

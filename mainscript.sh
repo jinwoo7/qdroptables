@@ -2,8 +2,8 @@
 TARGET=/home/linaro/pic
 
 export APIKEY="1ed0e88c3e964912a1baa09fab757356"
-export PUBLICKEY="AKIAJTJGMZQ26WIB65IQ"
-export SECRETKEY="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"
+export PUBLICKEY=""
+export SECRETKEY=""
 
 # for i in {1..5}
 #
