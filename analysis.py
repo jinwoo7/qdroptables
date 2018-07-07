@@ -1,5 +1,6 @@
 import boto3, logging, requests, os, sys
-from playsound import playsound
+# from playsound import playsound
+import subprocess, psutil
 from os.path import isfile
 from os import remove
 
@@ -11,6 +12,9 @@ def env_check(env_list):
 			sys.exit('Please set env variable:{}'.format(env))
 
 # Variable Declaration
+sound_program = "vlc"
+TIMEOUT = 5
+
 file_path = sys.argv[-1]
 #file_path = "C:\\Users\\jyom\\Documents\\github\\12153.jpg"
 
@@ -136,16 +140,23 @@ def play_sound(emotions):
 	topResults = []
 	for emotion in emotions:
 		topResults.append(emotion[0][0])
-	
 
 	if "Scared    " in topResults:
-		playsound('slowDown.mp3', block = True)
+		sound = 'slowDown.mp3'
 	elif "Frustrated" in topResults:
-		playsound('frustration.mp3', block = True)
+		sound = 'frustration.mp3'
 	elif "Sad       " in topResults:
-		playsound('checkOnPassenger.mp3', block = True)
+		sound = 'checkOnPassenger.mp3'
 	else:
-		playsound('good.mp3', block = True)
+		sound = 'good.mp3'
+	subp = subprocess.Popen([sound_program, sound])
+
+	p = psutil.Process(subp.pid)
+	try:
+		p.wait(TIMEOUT)
+	except psutil.TimeoutExpired:
+		p.kill()
+		raise
 
 
 print('Check env')
