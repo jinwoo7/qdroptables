@@ -1,11 +1,10 @@
-import boto3, logging, requests, os, sys
-# from playsound import playsound
-import subprocess, psutil
+import boto3, logging, requests, os, sys, vlc, time
 from os.path import isfile
 from os import remove
+from mutagen.mp3 import MP3
 
 # Error Checking
-env_vars = ['APIKEY', 'PUBLICKEY', 'SECRETKEY']
+env_vars = ['APIKEY', 'ACCESSKEY', 'SECRETKEY']
 def env_check(env_list):
 	for env in env_list:
 		if env not in os.environ:
@@ -31,7 +30,7 @@ params = {
     'returnFaceAttributes': 'emotion'
 }
 
-session = boto3.Session(aws_access_key_id=os.environ['PUBLICKEY'],
+session = boto3.Session(aws_access_key_id=os.environ['ACCESSKEY'],
 						aws_secret_access_key=os.environ['SECRETKEY'])
 
 s3 = session.client('s3')
@@ -81,30 +80,32 @@ def analyze_file(image_url):
 	return response.json()
 
 def sort_results(faces):
-	emotions = []
-	for face in faces:
-		person = []
+        emotions = []
+        print(faces)
+        emotion_result = faces['faceAttributes']['emotion']
+        for face in faces:
+                person = []
 		# Good
-		person.append([
+                person.append([
 			"Happy     ",
-			face['faceAttributes']['emotion']['happiness'] + face['faceAttributes']['emotion']['neutral'] + face['faceAttributes']['emotion']['contempt']
+			emotion_result['happiness'] + emotion_result['neutral'] + emotion_result['contempt']
 		])
 		# Sad
-		person.append([
+                person.append([
 			"Sad       ",
-			face['faceAttributes']['emotion']['sadness']
+			emotion_result['sadness']
 		])
 		# Frustrated
-		person.append([
+                person.append([
 			"Frustrated",
-			face['faceAttributes']['emotion']['anger'] + face['faceAttributes']['emotion']['disgust']
+			emotion_result['anger'] + emotion_result['disgust']
 		])
 		# Scared
-		person.append([
+                person.append([
 			"Scared    ",
-			face['faceAttributes']['emotion']['fear'] + face['faceAttributes']['emotion']['surprise']
+			emotion_result['fear'] + emotion_result['surprise']
 		])
-		emotions.append(sorted(person, key=lambda tup: tup[1], reverse=True))
+                emotions.append(sorted(person, key=lambda tup: tup[1], reverse=True))
 
 	# person = []
 	# person.append([
@@ -125,7 +126,7 @@ def sort_results(faces):
 	# ])
 	# emotions.append(person)
 
-	return emotions
+        return emotions
 
 def print_result(emotions):
 	for emotion in emotions:
@@ -148,17 +149,14 @@ def play_sound(emotions):
 	else:
 		sound = 'good.mp3'
 
-	sound_program = "vlc"
-	TIMEOUT = 5
-	subp = subprocess.Popen([sound_program, sound])
 
-	p = psutil.Process(subp.pid)
+	p = vlc.MediaPlayer(sound)
 	try:
-		p.wait(TIMEOUT)
-	except psutil.TimeoutExpired:
-		p.kill()
-		raise
-
+            p.play()
+            time.sleep(MP3(sound).info.length + 2)
+	except:
+            print("stopping sound")
+            p.stop()
 
 print('Check env')
 env_check(env_vars)
@@ -181,5 +179,5 @@ emotions = sort_results(faces)
 print('Display Result')
 print_result(emotions)
 
-# print('Play Sound')
-# play_sound(emotions)
+print('Play Sound')
+play_sound(emotions)

@@ -1,14 +1,20 @@
 #!/bin/bash
-TARGET=/home/linaro/pic
+#TARGET=/home/linaro/pic
+TARGET=./pic
 
-export APIKEY="1ed0e88c3e964912a1baa09fab757356"
-export PUBLICKEY=""
+export APIKEY=""
+export ACCESSKEY=""
 export SECRETKEY=""
 
-# for i in {1..5}
-#
-FILENAME=$RANDOM.jpg
-gst-launch-1.0 v4l2src num-buffers=1 ! jpegenc ! filesink location=$TARGET/$FILENAME
-sleep 2s
-python3 ~/qdroptables/analysis.py $TARGET/$FILENAME
-#done
+while true
+do
+    echo "ready"
+    sleep 1s
+    echo "set"
+    sleep 1s
+    echo "cheese!"
+
+    FILENAME=$RANDOM.jpg
+    gst-launch-1.0 v4l2src num-buffers=1 ! jpegenc ! filesink location=$TARGET/$FILENAME
+    python3 ~/qdroptables/analysis.py $TARGET/$FILENAME
+done
